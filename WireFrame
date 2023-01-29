@@ -1,0 +1,36 @@
+echo "# SampleSolidityDEX" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/iantstaley/SampleSolidityDEX.git
+git push -u origin main
+pragma solidity ^0.8.0;
+
+contract DecentralizedExchange {
+    mapping(address => mapping(address => uint)) public balanceOf;
+    address public owner;
+
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    function deposit() public payable {
+        require(msg.value > 0, "Deposit amount must be greater than 0.");
+        balanceOf[msg.sender][msg.sender] += msg.value;
+    }
+
+    function withdraw(address _token, uint _amount) public {
+        require(balanceOf[msg.sender][_token] >= _amount, "Insufficient balance.");
+        require(address(_token).transfer(_amount), "Transfer failed.");
+        balanceOf[msg.sender][_token] -= _amount;
+    }
+
+    function trade(address _fromToken, address _toToken, uint _amount) public {
+        require(balanceOf[msg.sender][_fromToken] >= _amount, "Insufficient balance.");
+        require(address(_fromToken).transfer(_amount), "Transfer failed.");
+        require(address(_toToken).transfer(_amount), "Transfer failed.");
+        balanceOf[msg.sender][_fromToken] -= _amount;
+        balanceOf[msg.sender][_toToken] += _amount;
+    }
+}
